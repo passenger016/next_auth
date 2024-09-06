@@ -1,6 +1,6 @@
 "use server";
 
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import * as z from "zod";
 import { RegisterSchema } from "@/schema";
 import { db } from "@/lib/db";
@@ -21,7 +21,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   // destructuring the data from the validated fields once we are confirmed that the fields being entered are valid
   const { email, password, name } = validatedFields.data;
   // hashing the password using bcrypt
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcryptjs.hash(password, 10);
 
   // confirming that email that has been entered is not already taken
   const existingUser = await getUserByEmail(email);
