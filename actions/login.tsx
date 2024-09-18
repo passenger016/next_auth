@@ -32,7 +32,6 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
       switch (err.type){
         case "CredentialsSignin": 
           return {error: "Inavlid credentials"}
-          break;
         default:
           return {error: "Something went wrong"}
       }
