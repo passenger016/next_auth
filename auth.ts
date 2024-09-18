@@ -10,21 +10,41 @@ import {getUserById} from "@/data/user"
 const prisma = new PrismaClient()
  
 export const { auth, handlers, signIn, signOut } = NextAuth({
+
+  // defining the routes that should be followed on different occassions
+  pages:{
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
+
+
+
+  events:{
+    async linkAccount({user}){
+      await db.user.update({
+        where:{id: user.id},
+        data: {emailVerified: true}
+      })
+    }
+  },
+
+
+
   // the `session` callback returns the session
   // the `jwt` is the actually jwt token
   callbacks:{
 
     // if the email is not verified then signin won't be allowed
-    async signIn(user){
+    // async signIn(user){
 
-      const exitsingUser = await getUserById(user.user.id);
-      console.log(user.user.id);
-      if (!exitsingUser || !exitsingUser.emailVerified){
-        return false;
-      }
+    //   const exitsingUser = await getUserById(user.user.id);
+    //   console.log(user.user.id);
+    //   if (!exitsingUser || !exitsingUser.emailVerified){
+    //     return false;
+    //   }
 
-      return true;
-    },
+    //   return true;
+    // },
 
     // this is the session token
     async session({token,session}){

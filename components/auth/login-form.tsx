@@ -20,9 +20,14 @@ import { Button } from "../ui/button";
 import { FormError } from "../FormError";
 import { FormSuccess } from "../FormSuccess";
 import { login } from "@/actions/login";
+import { useSearchParams } from "next/navigation";
 
 // we are not exporting default here because this is just a component not a page
 export const LoginForm = () => {
+  // we are going to use useSearchParams to check the query parameter in the URL
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error") === "OAuthAccountNotLinked"?"Email already in use with different provider":""
+
   // we are using useTransition to check when server action isPending and during that time we are disabling the button and input fields so that new data doesn't interfare before the server action has been completed
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
@@ -45,8 +50,9 @@ export const LoginForm = () => {
 
     startTransition(() => {
       login(values).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
+        setError(data?.error);
+        // TODO: Add when we add the 2FA
+        // setSuccess(data?.success);
       });
     });
   };
@@ -96,7 +102,7 @@ export const LoginForm = () => {
               </FormItem>
             )}
           />
-          <FormError message={error} />
+          <FormError message={error || urlError} />
           <FormSuccess message={success} />
           <Button type="submit" className="w-full" disabled={isPending}>
             Login
