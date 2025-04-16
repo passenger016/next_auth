@@ -5,6 +5,8 @@ import { LoginSchema } from "@/schema";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
+import { generateVerificationToken } from "@/lib/tokens";
+import { getUserByEmail } from "@/data/user";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   console.log(values); // will be logged in the server
@@ -19,25 +21,38 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
   const { email, password } = validatedFields.data;
 
-  try{
-    // we are using the "credentials" provider by NextAuth in this case
-    await signIn("credentials",{
-      email,
-      password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT
-    })
-  }
-  catch(err){
-    if(err instanceof AuthError){
-      switch (err.type){
-        case "CredentialsSignin": 
-          return {error: "Inavlid credentials"}
-        default:
-          return {error: "Something went wrong"}
-      }
-    }
-    // also we need to throw the error because next js recommends it
-    throw err
+  const existingUser = await getUserByEmail(email);
+
+  if (!existingUser || !existingUser.password || !existingUser.email) {
+    return { error: "Email does not exist or doesn not exist on credentials" };
   }
 
+  // if email exists but the user is not verified in that case as well we will stop the login and resend the verification token with a new token
+  if (!existingUser.emailVerified) {
+    // passing the existing user email to generate the new verification token
+    const verificationToken = await generateVerificationToken(
+      existingUser.email
+    );
+    return { success: "Confirmation Email Resent!" };
+  }
+
+  try {
+    // we are using the "credentials" provider by NextAuth in this case
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo: DEFAULT_LOGIN_REDIRECT,
+    });
+  } catch (err) {
+    if (err instanceof AuthError) {
+      switch (err.type) {
+        case "CredentialsSignin":
+          return { error: "Inavlid credentials" };
+        default:
+          return { error: "Something went wrong" };
+      }
+    }
+    // also we need to throw the error because next.js recommends it
+    throw err;
+  }
 };

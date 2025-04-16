@@ -55,3 +55,14 @@ model Account {
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
+
+model VerificationToken{
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  // the verification email can expire
+  expires DateTime
+
+  // combiation rule of one token per email
+  @@unique([email, token])
+}
