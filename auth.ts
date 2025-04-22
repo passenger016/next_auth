@@ -32,10 +32,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async signIn({ user, account }) {
       //we will allow OAUTH providers linked accounts without email verification
       if (account?.provider !== "credentials") return true;
+      // if not OAUTH then we will stop if not verified
       const exitsingUser = await getUserById(user.user.id);
       console.log(user.user.id);
 
-      // Prevent SignIn without email verification
+      // Prevent SignIn without email verification for credential login
       if (!exitsingUser || !exitsingUser.emailVerified) {
         return false;
       }
