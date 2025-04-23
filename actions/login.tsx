@@ -1,5 +1,7 @@
 "use server";
 
+// these are supposed to be .ts file no need for a .tsx file
+
 import * as z from "zod";
 import { LoginSchema } from "@/schema";
 import { signIn } from "@/auth";
@@ -25,7 +27,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   const existingUser = await getUserByEmail(email);
 
   if (!existingUser || !existingUser.password || !existingUser.email) {
-    return { error: "Email does not exist or doesn not exist on credentials" };
+    return { error: "Email does not exist or does not exist on credentials" };
   }
 
   // if email exists but the user is not verified in that case as well we will stop the login and resend the verification token with a new token

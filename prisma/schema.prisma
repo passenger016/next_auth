@@ -64,5 +64,15 @@ model VerificationToken{
   expires DateTime
 
   // combiation rule of one token per email
+  @@unique([email, token]) 
+}
+
+model PasswordResetToken{
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+
+  // only one unique token per email will exist
   @@unique([email, token])
 }

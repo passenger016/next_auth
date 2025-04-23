@@ -1,5 +1,14 @@
 import * as z from "zod";
 
+
+export const PasswordResetSchema = z.object({
+  email: z.string().email(
+    /* you can add a property called `message:""` and whatever you add there will be displyed whenever an invalid input is 
+    encountered or else the default input will bs used */
+  ),
+});
+
+
 export const LoginSchema = z.object({
   email: z.string().email(
     /* you can add a property called `message:""` and whatever you add there will be displyed whenever an invalid input is 

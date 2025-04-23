@@ -1,5 +1,7 @@
 "use server";
 
+// these are supposed to be .ts file no need for a .tsx file
+
 import bcryptjs from "bcryptjs";
 import * as z from "zod";
 import { RegisterSchema } from "@/schema";

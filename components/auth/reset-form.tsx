@@ -15,34 +15,27 @@ import { Input } from "../ui/input";
 import { useState, useTransition } from "react";
 
 import * as z from "zod";
-import { LoginSchema } from "@/schema";
+import { PasswordResetSchema } from "@/schema";
 import { Button } from "../ui/button";
 import { FormError } from "../FormError";
 import { FormSuccess } from "../FormSuccess";
-import { login } from "@/actions/login";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { reset } from "@/actions/reset";
 
 // we are not exporting default here because this is just a component not a page
-export const LoginForm = () => {
-  // we are going to use useSearchParams to check the query parameter in the URL
-  const searchParams = useSearchParams();
-  const urlError = searchParams.get("error") === "OAuthAccountNotLinked"?"Email already in use with different provider":""
-
+export const ResetForm = () => {
   // we are using useTransition to check when server action isPending and during that time we are disabling the button and input fields so that new data doesn't interfare before the server action has been completed
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof PasswordResetSchema>>({
+    resolver: zodResolver(PasswordResetSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof PasswordResetSchema>) => {
     console.log("FORM SUBMITTED");
 
     // clearing all error and submit messages whenever a new submit is occuring
@@ -50,20 +43,21 @@ export const LoginForm = () => {
     setSuccess("");
 
     startTransition(() => {
-      login(values).then((data) => {
+      reset(values).then((data) => {
         setError(data?.error);
         // TODO: Add when we add the 2FA
         setSuccess(data?.success);
       });
     });
+
+    console.log(values);
   };
 
   return (
     <CardWrapper
-      headerLabel="Welcome Back"
-      backButtonLabel="Don't have a account?"
-      backButtonHref="/auth/register"
-      showSocial
+      headerLabel="Reset your password"
+      backButtonLabel="Back to Login"
+      backButtonHref="/auth/login"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -85,32 +79,10 @@ export const LoginForm = () => {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="******"
-                    type="password"
-                    disabled={isPending}
-                  />
-                </FormControl>
-                {/* the asChild prop tells the Button to render Link component as the actual DOM component and not as a <button> while still applying all the styles of button */}
-                <Button size="sm" variant="link" asChild className="px-0 font-normal">
-                  <Link href="/auth/reset">Forgot Password?</Link>
-                </Button>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormError message={error || urlError} />
+          <FormError message={error} />
           <FormSuccess message={success} />
           <Button type="submit" className="w-full" disabled={isPending}>
-            Login
+            Send Reset Link
           </Button>
         </form>
       </Form>
