@@ -31,15 +31,16 @@ export const newPassword = async (
 
   const hasExpired = new Date(existingToken.expires) < new Date();
   if (hasExpired) {
-    return { errors: "Token has expired!" };
+    return { error: "Token has expired!" };
   }
   const existingUser = await getUserByEmail(existingToken.email);
   if (!existingUser) {
     return { error: "Email does not exist" };
   }
-
+  console.log(`Eixsting User's id : ${existingUser.id}`);
   // hashing the new password and updating it in the database
-  const hashedPassword = await bcryptjs.hash(values.password, 10);
+  const hashedPassword = await bcryptjs.hash(password, 10);
+  console.log(`password:${password}`);
 
   // update the password in the database by finding the user by the id
   await db.user.update({
