@@ -5,6 +5,7 @@ import { getVerificationTokenByToken } from "@/data/verification-token"; // to p
 import { getUserByEmail } from "@/data/user";
 
 export const newVerification = async (token: string) => {
+
   // first we will check if an token exits in the database by using the input token
   const existingToken = await getVerificationTokenByToken(token);
 
