@@ -7,9 +7,12 @@ import { LoginSchema } from "@/schema";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
-import { generateVerificationToken } from "@/lib/tokens";
+import {
+  generateVerificationToken,
+  generateTwoFactorToken,
+} from "@/lib/tokens";
 import { getUserByEmail } from "@/data/user";
-import { sendVerificationEmail } from "@/lib/mail";
+import { sendVerificationEmail, sendTwoFactorEmail } from "@/lib/mail";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   console.log(values); // will be logged in the server
@@ -37,10 +40,22 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
       existingUser.email
     );
 
-    await sendVerificationEmail(verificationToken.email, verificationToken.token);
-    
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token
+    );
 
     return { success: "Confirmation Email Resent!" };
+  }
+
+  if (existingUser.isTwoFactorEnabled && existingUser.email) {
+    // if the user exists and has two factor enabled then we will generate the two factor token using the user's email
+    const twoFactorToken = await generateTwoFactorToken(existingUser.email);
+    // then we will send that token using the email sending utitlity function
+    await sendTwoFactorEmail(twoFactorToken.email, twoFactorToken.token);
+
+    // returning the frontend a sepcific value
+    return { twoFactor: true };
   }
 
   try {

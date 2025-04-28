@@ -33,3 +33,18 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     `,
   });
 };
+
+export const sendTwoFactorEmail = async (email: string, token: string) => {
+  // this email will not contain a link instead will contain a 6 digit code which is the token itself
+
+  // sending the email with the 6 digit code in it
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "Your Two Factor Verification OTP",
+    html: `
+    <p>The 6 digit code for verification is👇</p>
+    <p>${token}</p>
+    `,
+  });
+};

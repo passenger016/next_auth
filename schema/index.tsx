@@ -27,6 +27,8 @@ export const LoginSchema = z.object({
   password: z.string().min(1, {
     message: "Password is required",
   }),
+  /* an additional field which will be used when the 2fa token has to be entered */
+  code: z.optional(z.string()),
 });
 
 export const RegisterSchema = z.object({

@@ -50,8 +50,10 @@ const NewVerificationForm = () => {
         {!success && !error && <PulseLoader size={10} />}
       </div>
       {/* Note: in dev environment there will be a token success immeditaly accompanied by a token does not exist this is because in dev environment react calls useEffect() twice but this problem won't persist in production environment */}
-      <FormSuccess message={success} />
-      <FormError message={error} />
+      <div className="w-full flex items-center justify-center">
+        <FormSuccess message={success} />
+        <FormError message={error} />
+      </div>
     </CardWrapper>
   );
 };

@@ -3,10 +3,9 @@
 import { getVerificationTokenByEmail } from "@/data/verification-token";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "./db";
-import {
-  getPasswordResetTokenbyEmail,
-  getPasswordResetTokenbyToken,
-} from "@/data/password-reset-token";
+import { getPasswordResetTokenbyEmail } from "@/data/password-reset-token";
+import crypto from "crypto";
+import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 
 // token is generated when the user clicks on a button to generate a new token for email verification so it can be replaced as many times as the user clicks for a new verification token
 export const generateVerificationToken = async (email: string) => {
@@ -57,4 +56,34 @@ export const generatePasswordResetToken = async (email: string) => {
   });
 
   return passwordResetToken;
+};
+
+export const generateTwoFactorToken = async (email: string) => {
+  // we are using crypto to generate a integer token of our own format other than the uuid4() which has a fixed format
+  // 10,000 is the starting of the range and 1,00,000 is the ending of the range, within these two values a random integer will be generated
+  const token = crypto.randomInt(100_000, 1_000_000).toString();
+  // setting the expires value to 6 minutes from the time of creation
+  const expires = new Date(new Date().getTime() + 6 * 60 * 1000);
+
+  // check if any existing token exists
+  const existingToken = await getTwoFactorTokenByEmail(token);
+
+  // if a token exists then remove the existsing token
+  if (existingToken) {
+    await db.twoFactorToken.delete({
+      where: { id: existingToken.id },
+    });
+  }
+
+  // set the new token and store it
+  const twoFactorToken = await db.twoFactorToken.create({
+    data: {
+      email,
+      token,
+      expires,
+    },
+  });
+
+  // returning the token
+  return twoFactorToken;
 };
