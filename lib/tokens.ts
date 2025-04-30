@@ -66,7 +66,7 @@ export const generateTwoFactorToken = async (email: string) => {
   const expires = new Date(new Date().getTime() + 6 * 60 * 1000);
 
   // check if any existing token exists
-  const existingToken = await getTwoFactorTokenByEmail(token);
+  const existingToken = await getTwoFactorTokenByEmail(email);
 
   // if a token exists then remove the existsing token
   if (existingToken) {
