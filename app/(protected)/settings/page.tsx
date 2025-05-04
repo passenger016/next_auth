@@ -8,6 +8,8 @@ const SettingsPage = () => {
   const session = useSession();
   const signOutUser = async () => {
     await signOut();
+    // or import logout() from @/actions/logout.ts and call logout() to implement server actions for logout logic.
+    // the above approach is better if there is additional logic required before logging out the user or else the current logic works perfectly.
   };
 
   return (
