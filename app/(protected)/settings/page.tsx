@@ -1,21 +1,21 @@
 // if the user is logged out we don't want them access the settings page
+// we will be using client components here
+"use client";
 
-import { auth, signOut } from "@/auth";
+import { useSession, signOut } from "next-auth/react";
 
-const SettingsPage = async () => {
-  const session = await auth();
-  
+const SettingsPage = () => {
+  const session = useSession();
+  const signOutUser = async () => {
+    await signOut();
+  };
+
   return (
     <div>
       {JSON.stringify(session)}
-      <form
-        action={async () => {
-          "use server";
-          await signOut();
-        }}
-      >
-        <button type="submit">Sign Out</button>
-      </form>
+      <button type="submit" onClick={signOutUser}>
+        Sign Out
+      </button>
     </div>
   );
 };
