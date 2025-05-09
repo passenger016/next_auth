@@ -16,8 +16,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div>
-      {JSON.stringify(user)}
+    <div className="bg-white rounded-xl p-10">
       <button type="submit" onClick={signOutUser}>
         Sign Out
       </button>
