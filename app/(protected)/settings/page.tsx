@@ -2,10 +2,13 @@
 // we will be using client components here
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { signOut } from "next-auth/react";
 
 const SettingsPage = () => {
-  const session = useSession();
+  // we are using the useCurrentUser hook to directly get the data of the `user` other than having to do a session.data?.user everytime
+  // we have to stringy the data in order to display it
+  const user = useCurrentUser();
   const signOutUser = async () => {
     await signOut();
     // or import logout() from @/actions/logout.ts and call logout() to implement server actions for logout logic.
@@ -14,7 +17,7 @@ const SettingsPage = () => {
 
   return (
     <div>
-      {JSON.stringify(session)}
+      {JSON.stringify(user)}
       <button type="submit" onClick={signOutUser}>
         Sign Out
       </button>
