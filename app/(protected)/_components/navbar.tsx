@@ -1,5 +1,6 @@
 "use client";
 
+import { UserButton } from "@/components/auth/user-button";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,7 +36,7 @@ export const Navbar = () => {
         </Button>
       </div>
       {/* this part contains the user button which has a dropdown to logout of the app */}
-      <p>User Button</p>
+      <UserButton />
     </nav>
   );
 };
