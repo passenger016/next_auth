@@ -1,13 +1,14 @@
 "use server";
-import { auth } from "@/auth";
+
+import { currentUser } from "@/lib/auth";
 
 /* In this page we will directly use server actions here to get the session data */
 
 const ServerPage = async () => {
   // get the session data first
-  const session = await auth();
+  const user = await currentUser();
 
-  return <div>{JSON.stringify(session)}</div>;
+  return <div>{JSON.stringify(user)}</div>;
 };
 
 export default ServerPage;
