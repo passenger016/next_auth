@@ -9,7 +9,7 @@ const ServerPage = async () => {
   // get the session data first
   const user = await currentUser();
 
-  return <UserInfo label="hello" />;
+  return <UserInfo label="Server component💻" user={user} />;
 };
 
 export default ServerPage;
