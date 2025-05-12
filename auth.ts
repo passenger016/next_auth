@@ -62,12 +62,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       console.log({
         sessionToken: token,
       });
+      // extending session token with custom values
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
 
-      if (token.role && session.user)
+      if (token.role && session.user) {
         session.user.role = token.role as "ADMIN" | "USER";
+      }
+
+      // we will only check for session.user since isTwoFactorEnabled can be false if two factor is turned off
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+      }
 
       return session;
     },
@@ -82,7 +89,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const exitsingUser = await getUserById(token.sub);
       if (!exitsingUser) return token;
 
+      // extending the token with custom values like role and isTwoFactorEnabled
       token.role = exitsingUser.role;
+      token.isTwoFactorEnabled = exitsingUser.isTwoFactorEnabled;
 
       // we will use the sub from ths token which is basically the id and transfer it to the session token
       // always return the token in the end to avoid error
