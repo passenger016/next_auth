@@ -7,6 +7,9 @@ import bcryptjs from "bcryptjs";
 import { LoginSchema } from "@/schema";
 import { getUserByEmail } from "./data/user";
 
+// NextAuth automatically generates the callback URL based on the site-url/api/auth/callback/provider
+// the callbacks will be provided for each provider mentioned here automatically
+
 export default {
   providers: [
     GitHub({

@@ -27,6 +27,7 @@
     "lucide-react": "^0.438.0",
     "next": "14.2.7",
     "next-auth": "^5.0.0-beta.20",
+    "nodemailer": "^6.10.1",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
