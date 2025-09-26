@@ -1,4 +1,4 @@
-"use client";
+"use server";
 
 import userCurrentRole from "@/lib/currentRole";
 import { UserRole } from "@prisma/client";
