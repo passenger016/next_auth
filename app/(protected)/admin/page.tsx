@@ -9,7 +9,7 @@ import { UserRole } from "@prisma/client";
 
 const AdminPage = async () => {
   return (
-    <Card className="w-[600px]">
+    <Card className="w-[80%] md:w-[600px]">
       <CardHeader>
         <p className="text-2xl font-semibold text-center">Admin Page🔑</p>
       </CardHeader>
