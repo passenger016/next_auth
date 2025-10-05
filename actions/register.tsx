@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { getUserByEmail } from "@/data/user";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
+import { sendVerificationEmailNodemailer } from "@/lib/mailUsingNodemailer";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   // console.log(values); // will be logged in the server
@@ -24,7 +25,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   // destructuring the data from the validated fields once we are confirmed that the fields being entered are valid
   const { email, password, name } = validatedFields.data;
-  
+
   // hashing the password using bcrypt
   const hashedPassword = await bcryptjs.hash(password, 10);
 
@@ -35,7 +36,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   if (existingUser) return { error: "Email Already Taken" };
 
   // else you can create an user
-  await db.user.create({
+  const user = await db.user.create({
     data: {
       name,
       email,
@@ -46,9 +47,19 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   // we will generate the verification token usng the utility function that we made.
   const verificationToken = await generateVerificationToken(email);
+
+  // sending email using nodemailer
+  await sendVerificationEmailNodemailer({
+    to: user.email,
+    subject: "Please verify your email",
+    token: verificationToken.token,
+    userName: user.name,
+  });
+
+  // sending email using the resend service -- commented out because we are now using nodemailer
   // now we will send the verification email as well.
   // we are using the email and token fields attached to the verification token to make sure we are sending the right ones.
-  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  // await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
   return { success: "Confirmation Email Sent" };
 };
