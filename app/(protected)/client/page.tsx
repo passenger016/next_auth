@@ -8,11 +8,11 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 /* useCurrentUser is used to get the session data using the client side hook useSession() */
 /* currentUser is used to get the session data using server side actions by await auth() */
 
-const ServerPage = () => {
+const ClientPage = () => {
   // get the session data first
   const user = useCurrentUser();
 
   return <UserInfo label="Client component📱" user={user} />;
 };
 
-export default ServerPage;
+export default ClientPage;
