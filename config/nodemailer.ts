@@ -1,3 +1,6 @@
+// this file is for confirguing nodemailer instance
+// then we will export the transporter and the sender email address
+// so that they can be used in other parts of the application for sending emails using nodemailer
 import nodemailer from 'nodemailer';
 
 // constant containing the email address of the sender
