@@ -16,6 +16,7 @@ import { sendVerificationEmail, sendTwoFactorEmail } from "@/lib/mail";
 import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
+import { sendVerificationEmailNodemailer } from "@/lib/mailUsingNodemailer";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   console.log(values); // will be logged in the server
@@ -44,10 +45,21 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
       existingUser.email
     );
 
-    await sendVerificationEmail(
-      verificationToken.email,
-      verificationToken.token
-    );
+    // TODO: when sending the email using nodemailer we need to extract the 'name' of the person from the 'existingUser' object
+
+    // sending email using nodemailer
+    await sendVerificationEmailNodemailer({
+      to: existingUser.email,
+      subject: "Please verify your email",
+      token: verificationToken.token,
+      userName: existingUser.name,
+    });
+
+    // sending email using the resend service -- commented out because we are now using nodemailer
+    // await sendVerificationEmail(
+    //   verificationToken.email,
+    //   verificationToken.token
+    // );
 
     return { success: "Confirmation Email Resent!" };
   }
