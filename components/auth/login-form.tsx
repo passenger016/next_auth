@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import * as z from "zod";
 import { LoginSchema } from "@/schema";
@@ -33,13 +33,26 @@ export const LoginForm = () => {
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Email already in use with different provider"
       : "";
-
+  const timerDelay: number = 15; // in seconds
   // we are using useTransition to check when server action isPending and during that time we are disabling the button and input fields so that new data doesn't interfare before the server action has been completed
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [timerValue, setTimerValue] = useState<number>(timerDelay);
+
+  // useEffect to handle the timer countdown for resending the 2FA code
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimerValue((prev) => {
+        return prev > 0 ? prev - 1 : 0;
+      });
+      // NOTE: the timerdelay needs to be in miliseconds not in seconds for the interval to work
+    }, timerDelay * 100);
+
+    return () => clearInterval(timer); // clear the interval
+  }, []);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -133,7 +146,10 @@ export const LoginForm = () => {
                         This means clicking it will submit the form, which is not what you want for actions like toggling password visibility. */}
                         <button
                           type="button"
-                          className="absolute right-0 top-1/2 -translate-y-1/2 p-2" onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 p-2"
+                          onClick={() =>
+                            setIsPasswordVisible(!isPasswordVisible)
+                          }
                         >
                           {/* or you can use 'prev' state like  onClick={()=>setIsPasswordVisible((prev) => !prev)} */}
                           {isPasswordVisible ? <LuEye /> : <LuEyeClosed />}
@@ -156,41 +172,73 @@ export const LoginForm = () => {
             </>
           )}
           {/* if we do have twoFactor then we will show only one field for entering and validating the 2FA token*/}
-          {showTwoFactor && (
-            <>
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Two Factor Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="123456"
-                        type="code"
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    {/* the asChild prop tells the Button to render Link component as the actual DOM component and not as a <button> while still applying all the styles of button */}
-                    <Button
-                      size="sm"
-                      variant="link"
-                      asChild
-                      className="px-0 font-normal"
-                    ></Button>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          )}
+          {
+            /* showTwoFactor */ true && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Two Factor Code</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="123456"
+                          type="code"
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      {/* the asChild prop tells the Button to render Link component as the actual DOM component and not as a <button> while still applying all the styles of button */}
+                      <Button
+                        size="sm"
+                        variant="link"
+                        asChild
+                        className="px-0 font-normal"
+                      ></Button>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )
+          }
           <FormError message={error || urlError} />
           <FormSuccess message={success} />
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {/* the button label will change to "Confirm" if twoFactor is on or else t will stay as Login */}
-            {showTwoFactor ? "Confirm" : "Login"}
-          </Button>
+          {/* this is the button container */}
+          <div className="flex flex-col gap-3">
+            {
+              /* showTwoFactor */ true && (
+                <>
+                  <div className="flex flex-row justify-start items-center">
+                    <span className="font-normal text-xs">
+                      Haven't received the code?
+                    </span>
+                    {timerValue === 0 ? (
+                      // all buttons inside a form need to be defined as type="button" because inside a form it defaults to type="submit"
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="font-normal"
+                        size="sm"
+                      >
+                        Resend Email
+                      </Button>
+                    ) : (
+                      <div className="font-normal text-xs px-3 h-8 inline-flex items-center justify-center whitespace-nowrap">
+                        Resend Code in {timerValue}s
+                      </div>
+                    )}
+                  </div>
+                </>
+              )
+            }
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {/* the button label will change to "Confirm" if twoFactor is on or else t will stay as Login */}
+              {showTwoFactor ? "Confirm" : "Login"}
+            </Button>
+            {/* TODO: Add a separate button for the 2fa click with a onClick trigger to start the interval and restart it */}
+          </div>
         </form>
       </Form>
     </CardWrapper>
