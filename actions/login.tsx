@@ -16,7 +16,7 @@ import { sendVerificationEmail, sendTwoFactorEmail } from "@/lib/mail";
 import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
-import { sendVerificationEmailNodemailer } from "@/lib/mailUsingNodemailer";
+import { sendTwoFactorAuthEmailNodemailer, sendVerificationEmailNodemailer } from "@/lib/mailUsingNodemailer";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   console.log(values); // will be logged in the server
@@ -67,7 +67,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   // checking if the user exists and has two factor enabled
   if (existingUser.isTwoFactorEnabled && existingUser.email) {
     // since there is only one button which will be used for both the funtionality of login and sending 2FA email
-    // we will differentiate based on wether we have the 2FA code or not if we have the code that means the email has been sent
+    // we will differentiate based on whether we have the 2FA code or not if we have the code that means the email has been sent
     if (code) {
       // we will verify the code
       const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
@@ -132,8 +132,18 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     else {
       // if the user exists and has two factor enabled then we will generate the two factor token using the user's email
       const twoFactorToken = await generateTwoFactorToken(existingUser.email);
+
+      // sending two factor email using nodemailer
+      await sendTwoFactorAuthEmailNodemailer({
+        to: twoFactorToken.email,
+        subject: "Your 2FA code for login",
+        token: twoFactorToken.token,
+        userName: existingUser.name
+      })
+
+      // older way of sending email using the resend service -- commented out because we are now using nodemailer
       // then we will send that token using the email sending utitlity function
-      await sendTwoFactorEmail(twoFactorToken.email, twoFactorToken.token);
+      // await sendTwoFactorEmail(twoFactorToken.email, twoFactorToken.token);
     }
 
     // returning the frontend a sepcific value
