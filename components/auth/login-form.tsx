@@ -33,6 +33,7 @@ export const LoginForm = () => {
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Email already in use with different provider"
       : "";
+  // NOTE: update timer value to 30 secconds in order to avoid spamming the resend button
   const timerDelay: number = 15; // in seconds
   // we are using useTransition to check when server action isPending and during that time we are disabling the button and input fields so that new data doesn't interfare before the server action has been completed
   const [isPending, startTransition] = useTransition();
@@ -41,6 +42,12 @@ export const LoginForm = () => {
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [timerValue, setTimerValue] = useState<number>(timerDelay);
+  const [twoFactorSentCount, setTwoFactorSentCount] = useState<number>(0);
+
+  const restartTimer = () =>{
+    setTwoFactorSentCount((prev) => prev + 1);
+    setTimerValue(timerDelay);
+  }
 
   // useEffect to handle the timer countdown for resending the 2FA code
   useEffect(() => {
@@ -52,7 +59,7 @@ export const LoginForm = () => {
     }, timerDelay * 100);
 
     return () => clearInterval(timer); // clear the interval
-  }, []);
+  }, [twoFactorSentCount]); // whenever the twoFactorSentCount changes we will restart the timer
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -211,7 +218,7 @@ export const LoginForm = () => {
               /* showTwoFactor */ true && (
                 <>
                   <div className="flex flex-row justify-start items-center">
-                    <span className="font-normal text-xs">
+                    <span className="font-normal text-xs invisible md:visible">
                       Haven't received the code?
                     </span>
                     {timerValue === 0 ? (
@@ -219,8 +226,9 @@ export const LoginForm = () => {
                       <Button
                         type="button"
                         variant="link"
-                        className="font-normal"
+                        className="font-bold"
                         size="sm"
+                        onClick={restartTimer}
                       >
                         Resend Email
                       </Button>
