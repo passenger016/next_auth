@@ -34,7 +34,7 @@ export const LoginForm = () => {
       ? "Email already in use with different provider"
       : "";
   // NOTE: update timer value to 30 secconds in order to avoid spamming the resend button
-  const timerDelay: number = 15; // in seconds
+  const timerDelay: number = 30; // in seconds
   // we are using useTransition to check when server action isPending and during that time we are disabling the button and input fields so that new data doesn't interfare before the server action has been completed
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
@@ -236,7 +236,7 @@ export const LoginForm = () => {
             {showTwoFactor && (
               <>
                 <div className="flex flex-row justify-start items-center">
-                  <span className="font-normal text-xs invisible md:visible">
+                  <span className="font-normal text-xs">
                     Haven't received the code?
                   </span>
                   {timerValue === 0 ? (
