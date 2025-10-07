@@ -254,7 +254,7 @@ export const LoginForm = () => {
               <>
                 <div className="flex flex-row justify-start items-center">
                   <span className="font-normal text-xs">
-                    Haven't received the code?
+                    Haven&apos;t received the code?
                   </span>
                   {timerValue === 0 ? (
                     // all buttons inside a form need to be defined as type="button" because inside a form it defaults to type="submit"
