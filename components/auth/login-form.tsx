@@ -64,17 +64,34 @@ export const LoginForm = () => {
   // useEffect to handle the timer countdown for resending the 2FA code
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimerValue((prev) => {
-        return prev > 0 ? prev - 1 : 0;
-      });
+      /** IMPORTANT:
+       * Timer logic for 2FA countdown:
+       * The timer seems to "stop" automatically during form submission or when not in 2FA stage.
+       * This happens because:
+       * 1. The useEffect depends on [showTwoFactor, isPending, timerValue, twoFactorSentCount].
+       *    Whenever any of these values change, React runs the cleanup function and clears the existing interval.
+       * 2. When isPending is true (form submission in progress) or showTwoFactor is false (before 2FA),
+       *    the interval is cleared, effectively pausing the timer.
+       * 3. The conditional inside setInterval (`showTwoFactor && setTimerValue(...)`) ensures the timer only decrements
+       *    when in 2FA stage and timerValue > 0.
+       * 4. NOTE: the timer doesn't actually "stop" but the interval is cleared and a new one is created when the dependencies change.
+       * 5. Since the timer restarts from the last value of timerValue, it continues counting down correctly.
+       *
+       * Together, React's cleanup + this conditional causes the timer to start, stop, and resume at the expected times.
+       */
+
+      showTwoFactor &&
+        setTimerValue((prev) => {
+          return prev > 0 ? prev - 1 : 0;
+        });
       // NOTE: the timerdelay needs to be in miliseconds not in seconds for the interval to work
-    }, 1000); // the timer updates every second not every timerDelay * 100 second 
-    // IMPORTANT: setInterval is supposed to run every second to update the timerValue state variable
+    }, 1000); // the timer updates every second not every timerDelay * 100 second
+    // IMPORTANT: setInterval is supposed to ru~n every second to update the timerValue state variable
     // it has no relation to the timerDelay variable except for the initial value of timerValue state variable
     // the amount of time the timer runs is controlled by the timerValue state variable which is set to timerDelay initially and then decremented every second until it reaches 0
 
     return () => clearInterval(timer); // clear the interval
-  }, [twoFactorSentCount]); // whenever the twoFactorSentCount changes we will restart the timer
+  }, [showTwoFactor, isPending, twoFactorSentCount]); // whenever these values changes we will restart the timer
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -253,7 +270,9 @@ export const LoginForm = () => {
                     </Button>
                   ) : (
                     <div className="font-normal text-xs px-3 h-8 inline-flex items-center justify-center whitespace-nowrap">
-                      Resend Code in {timerValue}s
+                      {isPending
+                        ? "Timer stopped"
+                        : `Resend Code in ${timerValue}s`}
                     </div>
                   )}
                 </div>
