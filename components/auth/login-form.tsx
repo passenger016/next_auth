@@ -43,11 +43,23 @@ export const LoginForm = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [timerValue, setTimerValue] = useState<number>(timerDelay);
   const [twoFactorSentCount, setTwoFactorSentCount] = useState<number>(0);
+  // we will store the email and password in a state variable so that when the user clicks on resend we can use the same email and password to resend the 2FA code
+  const [credentials, setCredentials] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
 
-  const restartTimer = () =>{
+  const handleResend = () => {
+    if (credentials) {
+      login({
+        email: credentials.email,
+        password: credentials.password,
+        code: "",
+      }); // triggers resend logic
+    }
     setTwoFactorSentCount((prev) => prev + 1);
     setTimerValue(timerDelay);
-  }
+  };
 
   // useEffect to handle the timer countdown for resending the 2FA code
   useEffect(() => {
@@ -56,7 +68,10 @@ export const LoginForm = () => {
         return prev > 0 ? prev - 1 : 0;
       });
       // NOTE: the timerdelay needs to be in miliseconds not in seconds for the interval to work
-    }, timerDelay * 100);
+    }, 1000); // the timer updates every second not every timerDelay * 100 second 
+    // IMPORTANT: setInterval is supposed to run every second to update the timerValue state variable
+    // it has no relation to the timerDelay variable except for the initial value of timerValue state variable
+    // the amount of time the timer runs is controlled by the timerValue state variable which is set to timerDelay initially and then decremented every second until it reaches 0
 
     return () => clearInterval(timer); // clear the interval
   }, [twoFactorSentCount]); // whenever the twoFactorSentCount changes we will restart the timer
@@ -66,12 +81,14 @@ export const LoginForm = () => {
     defaultValues: {
       email: "",
       password: "",
+      code: "", // always present, not required unless 2FA
     },
   });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     console.log("FORM SUBMITTED");
-
+    // storing the email and password in the state variable
+    setCredentials({ email: values.email, password: values.password });
     // clearing all error and submit messages whenever a new submit is occuring
     setError("");
     setSuccess("");
@@ -82,8 +99,12 @@ export const LoginForm = () => {
         .then((data) => {
           setError(data?.error);
           if (data?.error) {
-            // reset the form if there is an error for better user experience
-            form.reset();
+            if (showTwoFactor) {
+              form.setValue("code", "");
+            } else {
+              // reset the form if there is an error for better user experience
+              form.reset();
+            }
             // set the error
             setError(data.error);
           }
@@ -179,68 +200,65 @@ export const LoginForm = () => {
             </>
           )}
           {/* if we do have twoFactor then we will show only one field for entering and validating the 2FA token*/}
-          {
-            /* showTwoFactor */ true && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Two Factor Code</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="123456"
-                          type="code"
-                          disabled={isPending}
-                        />
-                      </FormControl>
-                      {/* the asChild prop tells the Button to render Link component as the actual DOM component and not as a <button> while still applying all the styles of button */}
-                      <Button
-                        size="sm"
-                        variant="link"
-                        asChild
-                        className="px-0 font-normal"
-                      ></Button>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )
-          }
+          {showTwoFactor && (
+            <>
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Two Factor Code</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="123456"
+                        type="text"
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    {/* the asChild prop tells the Button to render Link component as the actual DOM component and not as a <button> while still applying all the styles of button */}
+                    <Button
+                      size="sm"
+                      variant="link"
+                      asChild
+                      className="px-0 font-normal"
+                    ></Button>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
           <FormError message={error || urlError} />
           <FormSuccess message={success} />
           {/* this is the button container */}
           <div className="flex flex-col gap-3">
-            {
-              /* showTwoFactor */ true && (
-                <>
-                  <div className="flex flex-row justify-start items-center">
-                    <span className="font-normal text-xs invisible md:visible">
-                      Haven't received the code?
-                    </span>
-                    {timerValue === 0 ? (
-                      // all buttons inside a form need to be defined as type="button" because inside a form it defaults to type="submit"
-                      <Button
-                        type="button"
-                        variant="link"
-                        className="font-bold"
-                        size="sm"
-                        onClick={restartTimer}
-                      >
-                        Resend Email
-                      </Button>
-                    ) : (
-                      <div className="font-normal text-xs px-3 h-8 inline-flex items-center justify-center whitespace-nowrap">
-                        Resend Code in {timerValue}s
-                      </div>
-                    )}
-                  </div>
-                </>
-              )
-            }
+            {showTwoFactor && (
+              <>
+                <div className="flex flex-row justify-start items-center">
+                  <span className="font-normal text-xs invisible md:visible">
+                    Haven't received the code?
+                  </span>
+                  {timerValue === 0 ? (
+                    // all buttons inside a form need to be defined as type="button" because inside a form it defaults to type="submit"
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="font-bold"
+                      size="sm"
+                      onClick={handleResend}
+                      disabled={isPending}
+                    >
+                      Resend Email
+                    </Button>
+                  ) : (
+                    <div className="font-normal text-xs px-3 h-8 inline-flex items-center justify-center whitespace-nowrap">
+                      Resend Code in {timerValue}s
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
             <Button type="submit" className="w-full" disabled={isPending}>
               {/* the button label will change to "Confirm" if twoFactor is on or else t will stay as Login */}
               {showTwoFactor ? "Confirm" : "Login"}
