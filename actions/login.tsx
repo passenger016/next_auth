@@ -16,7 +16,11 @@ import { sendVerificationEmail, sendTwoFactorEmail } from "@/lib/mail";
 import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
-import { sendTwoFactorAuthEmailNodemailer, sendVerificationEmailNodemailer } from "@/lib/mailUsingNodemailer";
+import {
+  sendTwoFactorAuthEmailNodemailer,
+  sendVerificationEmailNodemailer,
+} from "@/lib/mailUsingNodemailer";
+import bcryptjs from "bcryptjs";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   console.log(values); // will be logged in the server
@@ -64,11 +68,17 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     return { success: "Confirmation Email Resent!" };
   }
 
+  // if the email exists and the user is verified then we will check if the password matches the one in the database
+  // IMPORTANT: this step is imoportant to make sure that if the 2FA is enabled we will not send the 2FA code to the email if the password itself is wrong
+  const passwordCheck = await bcryptjs.compare(password, existingUser.password); // NOTE: the correct order is to put the plain text password first and then the hashed password second
+
+  if (!passwordCheck) return { error: "Invalid Credentials" };
+
   // checking if the user exists and has two factor enabled
   if (existingUser.isTwoFactorEnabled && existingUser.email) {
     // since there is only one button which will be used for both the funtionality of login and sending 2FA email
     // we will differentiate based on whether we have the 2FA code or not if we have the code that means the email has been sent
-    if (code) {
+    if (typeof code === "string" && code.trim().length > 0) {
       // we will verify the code
       const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
       // if after querying the database we couldn't find the 2FA token then we will return a appropiate error.
@@ -138,8 +148,8 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         to: twoFactorToken.email,
         subject: "Your 2FA code for login",
         token: twoFactorToken.token,
-        userName: existingUser.name
-      })
+        userName: existingUser.name,
+      });
 
       // older way of sending email using the resend service -- commented out because we are now using nodemailer
       // then we will send that token using the email sending utitlity function
