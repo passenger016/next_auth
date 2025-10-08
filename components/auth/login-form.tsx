@@ -109,6 +109,15 @@ export const LoginForm = () => {
     // clearing all error and submit messages whenever a new submit is occuring
     setError("");
     setSuccess("");
+    // since the zod schema has code set to optional but we neeeded to include in for handling of the logic in the login.ts
+    // we will validate if the code has been entered or not here before sending the data to the server
+    // if showTwoFactor is true and the code is empty or only spaces then we will set the error
+    // checks the code by looking "if it exists" using the optional chaining operator "?" 
+    // if both the conditions are true then we will set the error or else we will proceed with the login
+    if (showTwoFactor && !values.code?.trim()) {
+      setError("Code is required");
+      return;
+    }
 
     startTransition(() => {
       // alternatively implement a async await logic instead of .then and .catch since it is easier to manage
@@ -231,6 +240,7 @@ export const LoginForm = () => {
                         placeholder="123456"
                         type="text"
                         disabled={isPending}
+                        autoComplete="off"
                       />
                     </FormControl>
                     {/* the asChild prop tells the Button to render Link component as the actual DOM component and not as a <button> while still applying all the styles of button */}
@@ -271,7 +281,7 @@ export const LoginForm = () => {
                   ) : (
                     <div className="font-normal text-xs px-3 h-8 inline-flex items-center justify-center whitespace-nowrap">
                       {isPending
-                        ? "Timer stopped"
+                        ? "Timer paused"
                         : `Resend Code in ${timerValue}s`}
                     </div>
                   )}
