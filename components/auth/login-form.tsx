@@ -2,6 +2,7 @@
 
 import { LuEye } from "react-icons/lu";
 import { LuEyeClosed } from "react-icons/lu";
+import { Spinner } from "@/components/ui/spinner";
 import { CardWrapper } from "./card-wrapper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -112,7 +113,7 @@ export const LoginForm = () => {
     // since the zod schema has code set to optional but we neeeded to include in for handling of the logic in the login.ts
     // we will validate if the code has been entered or not here before sending the data to the server
     // if showTwoFactor is true and the code is empty or only spaces then we will set the error
-    // checks the code by looking "if it exists" using the optional chaining operator "?" 
+    // checks the code by looking "if it exists" using the optional chaining operator "?"
     // if both the conditions are true then we will set the error or else we will proceed with the login
     if (showTwoFactor && !values.code?.trim()) {
       setError("Code is required");
@@ -290,7 +291,7 @@ export const LoginForm = () => {
             )}
             <Button type="submit" className="w-full" disabled={isPending}>
               {/* the button label will change to "Confirm" if twoFactor is on or else t will stay as Login */}
-              {showTwoFactor ? "Confirm" : "Login"}
+              {isPending ? <Spinner /> : showTwoFactor ? "Confirm" : "Login"}
             </Button>
             {/* TODO: Add a separate button for the 2fa click with a onClick trigger to start the interval and restart it */}
           </div>
