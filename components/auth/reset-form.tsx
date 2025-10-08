@@ -20,6 +20,7 @@ import { Button } from "../ui/button";
 import { FormError } from "../FormError";
 import { FormSuccess } from "../FormSuccess";
 import { reset } from "@/actions/reset";
+import { Spinner } from "../ui/spinner";
 
 // we are not exporting default here because this is just a component not a page
 export const ResetForm = () => {
@@ -82,7 +83,7 @@ export const ResetForm = () => {
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button type="submit" className="w-full" disabled={isPending}>
-            Send Reset Link
+            {isPending ? <Spinner /> : "Send Reset Link"}
           </Button>
         </form>
       </Form>
