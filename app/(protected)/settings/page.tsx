@@ -3,7 +3,7 @@
 "use client";
 
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { CardContent, CardHeader, Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { settings } from "@/actions/settings";
@@ -27,10 +27,15 @@ const SettingsPage = () => {
     // or import logout() from @/actions/logout.ts and call logout() to implement server actions for logout logic.
     // the above approach is better if there is additional logic required before logging out the user or else the current logic works perfectly.
   };
+
+  const { update } = useSession();
+
   const updateName = () => {
     startTransition(() => {
       settings({
-        name: "New Name",
+        name: "hui",
+      }).then(() => {
+        update(); // to update the session data after the settings have been updated
       });
     });
   };
@@ -46,7 +51,9 @@ const SettingsPage = () => {
           Sign Out
         </Button> */}
         {/* Button will be diabled during the transition */}
-        <Button onClick={updateName} disabled={isPending}>Update Name</Button>
+        <Button onClick={updateName} disabled={isPending}>
+          Update Name
+        </Button>
       </CardContent>
     </Card>
   );
