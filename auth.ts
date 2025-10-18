@@ -34,7 +34,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       //we will allow OAUTH providers linked accounts without email verification
       if (account?.provider !== "credentials") return true;
       // if not OAUTH then we will stop if not verified
-      if(!user.id) return false
+      if (!user.id) return false;
       const exitsingUser = await getUserById(user.id);
       console.log(user.id);
 
@@ -60,9 +60,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
     // this is the session token
     async session({ token, session }) {
-      console.log({
-        sessionToken: token,
-      });
+      // -- uncomment for debugging
+      // console.log({
+      //   sessionToken: token,
+      // });
+
       // extending session token with custom values
       if (token.sub && session.user) {
         session.user.id = token.sub;
@@ -77,10 +79,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
       }
 
+      // we will also update the session name and email in case they were updated
+      if (session.user) {
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+      }
+
       return session;
     },
     async jwt({ token }) {
-      console.log(token);
+      // console.log(token); -- uncomment for debugging
       // if token.sub is not present that means we are logged out
       if (!token.sub) {
         return token;
@@ -89,6 +97,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // if we want to get additional information about the user then we can get them from ID
       const exitsingUser = await getUserById(token.sub);
       if (!exitsingUser) return token;
+
+      // manually assigning the name in order for updating name logic to work properly
+      token.name = exitsingUser.name;
+      // same for the email
+      token.email = exitsingUser.email;
 
       // extending the token with custom values like role and isTwoFactorEnabled
       token.role = exitsingUser.role;
