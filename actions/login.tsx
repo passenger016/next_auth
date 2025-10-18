@@ -27,7 +27,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
   // client side validation can be easly bypassed
   // hence we will schema validate our data on both sides of the application (server and client)
-  // In the context of LoginSchema.safeParse(values), this line is used to validate the values object against the schema defined in LoginSchema. Here’s a detailed breakdown of its usage and purpose:
+  // In the context of LoginSchema.safeParse(values), this line is used to validate the values object against the schema defined in LoginSchema.
   const validatedFields = LoginSchema.safeParse(values);
 
   // if validation is passed then validationFields.success will be set to `True` else `False`
