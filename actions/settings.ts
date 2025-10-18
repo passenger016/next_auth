@@ -5,6 +5,7 @@ import * as z from "zod";
 import { db } from "@/lib/db";
 import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth"; // currentUser fetches the current user data using server actions not from client side
+import { revalidatePath } from "next/cache";
 
 // the values we will recieved in the settings function will be of the type inferred from SettingsSchema
 // this way we ensure type safety and also validation using zod schema
@@ -27,5 +28,13 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
       ...values,
     },
   });
+
+  // revalidatePath is used to revalidate the server cache for a specific path and is part of the next/cache module
+  // do not pass any extension like .tsx — those are source filenames, not URL paths.
+  // Route groups (segments wrapped in parentheses, e.g. (protected)) are not part of the public URL. The URL path should reflect the published route.
+  // we did call call revalidatePath('/(protected)/server') and it worked, it’s because Next resolved that string — but it's safer and clearer to use the actual public path (the one shown in the browser).
+  // that is the best practise is it remove segments wrapped in parentheses from the path while using revalidatePath.
+  revalidatePath('/(protected)/server');
+
   return { success: "Profile updated successfully" };
 };
