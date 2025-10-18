@@ -47,3 +47,10 @@ export const RegisterSchema = z.object({
     message: "Name is required with minimum 3 characters",
   }),
 });
+
+/* schema for user profile under /settings page */
+export const SettingsSchema = z.object({
+  name: z.optional(
+    z.string().min(3, { message: "Name is required with minimum 3 characters" })
+  ),
+});
