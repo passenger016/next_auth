@@ -21,6 +21,12 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     return { error: "User not found" };
   }
 
+  // check if the entered name is the same as the current name
+  // if same then we won't fire the update
+  if (values.name?.trim() === user?.name) {
+    return { error: "Please use a different name than your current one" };
+  }
+
   // now we will update the user data in the database
   await db.user.update({
     where: { id: dbUser.id },
@@ -34,7 +40,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   // Route groups (segments wrapped in parentheses, e.g. (protected)) are not part of the public URL. The URL path should reflect the published route.
   // we did call call revalidatePath('/(protected)/server') and it worked, it’s because Next resolved that string — but it's safer and clearer to use the actual public path (the one shown in the browser).
   // that is the best practise is it remove segments wrapped in parentheses from the path while using revalidatePath.
-  revalidatePath('/(protected)/server');
+  revalidatePath("/(protected)/server");
 
   return { success: "Profile updated successfully" };
 };
