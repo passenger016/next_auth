@@ -25,6 +25,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+// for displaying error and success messages
+import { FormError } from "@/components/FormError";
+import { FormSuccess } from "@/components/FormSuccess";
 
 /* 
   NOTE: async await functions can be used in a client component but they cannot be used directly in the component body
@@ -50,14 +53,14 @@ const SettingsPage = () => {
     },
   });
 
-  // older approach for form submission using server action -- commented out 
+  // older approach for form submission using server action -- commented out
   // we are using the useCurrentUser hook to directly get the data of the `user` other than having to do a session.data?.user everytime
   // we have to stringy the data in order to display it
   // const user = useCurrentUser();
   // const signOutUser = async () => {
-    // await signOut();
-    // or import logout() from @/actions/logout.ts and call logout() to implement server actions for logout logic.
-    // the above approach is better if there is additional logic required before logging out the user or else the current logic works perfectly.
+  // await signOut();
+  // or import logout() from @/actions/logout.ts and call logout() to implement server actions for logout logic.
+  // the above approach is better if there is additional logic required before logging out the user or else the current logic works perfectly.
   // };
 
   const { update } = useSession();
@@ -67,7 +70,11 @@ const SettingsPage = () => {
   // and then set values parameter to that type
   // this ensures type safety and validation
   const onSubmit = (values: z.infer<typeof SettingsSchema>) => {
-    // TODO: check if the entered name is the same as the current name
+    // on a fresh submit we will clear any previous error or success message
+    setError("");
+    setSuccess("");
+
+    // then start the transition
     startTransition(() => {
       settings({
         name: values.name,
@@ -123,6 +130,9 @@ const SettingsPage = () => {
                 )}
               />
             </div>
+            {/* display error or success message if any */}
+            <FormError message={error} />
+            <FormSuccess message={success} />
             <Button type="submit" disabled={isPending}>
               {isPending ? <Spinner /> : "Update Name"}
             </Button>
