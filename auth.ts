@@ -7,6 +7,7 @@ import authConfig from "@/auth.config";
 import { db } from "@/lib/db";
 import { getUserById } from "@/data/user";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
+import { getAccountByUserId } from "./data/account";
 
 const prisma = new PrismaClient();
 
@@ -83,6 +84,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.name = token.name as string;
         session.user.email = token.email as string;
+        // we will also add the isOAuthUser flag to the session user
+        session.user.isOAuthUser = token.isOAuthUser as boolean;
       }
 
       return session;
@@ -97,6 +100,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // if we want to get additional information about the user then we can get them from ID
       const exitsingUser = await getUserById(token.sub);
       if (!exitsingUser) return token;
+
+      // if the user is linked to an OAUTH provider account
+      const isOAuthUser = await getAccountByUserId(exitsingUser.id);
+      // we are converting the result to boolean
+      // that is if the account exists then isOAuthUser will be true else false
+      // the same result can be achieved using Boolean(isOAuthUser) instead of the double negation
+      token.isOAuthUser = !!isOAuthUser;
 
       // manually assigning the name in order for updating name logic to work properly
       token.name = exitsingUser.name;
