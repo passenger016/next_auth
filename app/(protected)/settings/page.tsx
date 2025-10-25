@@ -28,6 +28,7 @@ import { Spinner } from "@/components/ui/spinner";
 // for displaying error and success messages
 import { FormError } from "@/components/FormError";
 import { FormSuccess } from "@/components/FormSuccess";
+import { Switch } from "@/components/ui/switch";
 
 /* 
   NOTE: async await functions can be used in a client component but they cannot be used directly in the component body
@@ -49,7 +50,10 @@ const SettingsPage = () => {
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
+      // the default values will automatically populate the form fields with the current user data
       name: user?.name || undefined,
+      email: user?.email || undefined,
+      isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
     },
   });
 
@@ -78,6 +82,8 @@ const SettingsPage = () => {
     startTransition(() => {
       settings({
         name: values.name,
+        isTwoFactorEnabled: values.isTwoFactorEnabled,
+        email: values.email,
       })
         .then((data) => {
           // we won't always fire the update
@@ -129,12 +135,59 @@ const SettingsPage = () => {
                   </FormItem>
                 )}
               />
+              <FormField
+                // the control of the form is passed here
+                // this basically connects the form field with react hook form
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter a new email"
+                        {...field}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                // the control of the form is passed here
+                // this basically connects the form field with react hook form
+                control={form.control}
+                name="isTwoFactorEnabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row item-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Two-Factor Authentication</FormLabel>
+                      <FormDescription>
+                        Enable or disable two-factor authentication for your
+                        account.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      {/*
+                          By doing onCheckedChange={field.onChange} you tell the Switch to call RHF's(React Hook Form's) field.onChange(checked) whenever the user toggles the switch. RHF then updates its internal value for that field.
+                      */}
+                      <Switch
+                        disabled={isPending}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             {/* display error or success message if any */}
             <FormError message={error} />
             <FormSuccess message={success} />
             <Button type="submit" disabled={isPending}>
-              {isPending ? <Spinner /> : "Update Name"}
+              {isPending ? <Spinner /> : "Save"}
             </Button>
           </form>
         </Form>
