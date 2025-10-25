@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
 import { useEffect, useState, useTransition } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import * as z from "zod";
 import { LoginSchema } from "@/schema";
@@ -49,6 +51,8 @@ export const LoginForm = () => {
     email: string;
     password: string;
   } | null>(null);
+  const { update } = useSession();
+  const router = useRouter();
 
   const handleResend = () => {
     if (credentials) {
@@ -123,7 +127,7 @@ export const LoginForm = () => {
     startTransition(() => {
       // alternatively implement a async await logic instead of .then and .catch since it is easier to manage
       login(values)
-        .then((data) => {
+        .then(async (data) => {
           setError(data?.error);
           if (data?.error) {
             if (showTwoFactor) {
@@ -139,6 +143,27 @@ export const LoginForm = () => {
             form.reset();
             setSuccess(data.success);
           }
+          // Try to refresh next-auth client cache first (preferred)
+          if (update) {
+            try {
+              await update(); // re-fetches session endpoint and updates useSession()
+            } catch (e) {
+              // swallow, we'll fallback to router.refresh below
+            }
+          }
+
+          // Ensure server components are re-run so SSR UI reflects new cookie
+          try {
+            router.refresh();
+          } catch (e) {
+            // ignore refresh failure
+          }
+
+          // Optional small delay (uncomment only if you encounter a race):
+          // await new Promise((r) => setTimeout(r, 100));
+
+          // Navigate to protected area (replace so login page is not in history)
+          router.replace("/(protected)/settings"); // adjust to your target
           // now if the data being send back has a twoFactor attribute attached
           if (data?.twoFactor) {
             setShowTwoFactor(true);
