@@ -20,12 +20,22 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   if (!dbUser) {
     return { error: "User not found" };
   }
+  
+  // if the user is linked to an OAUTH provider then we will not allow them to update their fields
+  // which are directly managed by the OAUTH provider
+  // this code is for handling that case on the server
+  // we will also disable it on the client side
+  if(user.isOAuthUser){
+    values.email= undefined,
+    values.isTwoFactorEnabled= undefined
+  }
 
+  // disabled name checking because of the same form for all the fields 
   // check if the entered name is the same as the current name
   // if same then we won't fire the update
-  if (values.name?.trim() === user?.name) {
-    return { error: "Please use a different name than your current one" };
-  }
+  // if (values.name?.trim() === user?.name) {
+  //   return { error: "Please use a different name than your current one" };
+  // }
 
   // now we will update the user data in the database
   await db.user.update({
