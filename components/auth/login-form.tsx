@@ -159,8 +159,13 @@ export const LoginForm = () => {
             // ignore refresh failure
           }
 
+          // If the router and session are stale, fallback to full reload
+          setTimeout(() => {
+            window.location.reload();
+          }, 300); // fallback after short delay if session still not visible
+
           // Optional small delay (uncomment only if you encounter a race):
-          // await new Promise((r) => setTimeout(r, 100));
+          await new Promise((r) => setTimeout(r, 100));
 
           // Navigate to protected area (replace so login page is not in history)
           router.replace("/settings"); // adjust to your target
