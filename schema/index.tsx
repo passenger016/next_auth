@@ -53,4 +53,9 @@ export const SettingsSchema = z.object({
   name: z.optional(
     z.string().min(3, { message: "Name is required with minimum 3 characters" })
   ),
+  isTwoFactorEnabled: z.optional(z.boolean()),
+  email: z.optional(z.string().email({ message: "Invalid email address" })),
+  // TODO: implement password change functionality either here or on a separate page
+  // but instead of taking an input old password and new password,
+  // we will take new password and confirm new password fields for better UX
 });
