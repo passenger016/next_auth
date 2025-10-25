@@ -29,6 +29,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { FormError } from "@/components/FormError";
 import { FormSuccess } from "@/components/FormSuccess";
 import { Switch } from "@/components/ui/switch";
+import clsx from "clsx";
+import { FormInfo } from "@/components/FormInfo";
 
 /* 
   NOTE: async await functions can be used in a client component but they cannot be used directly in the component body
@@ -113,6 +115,11 @@ const SettingsPage = () => {
           Sign Out
         </Button> */}
         {/* Button will be diabled during the transition */}
+        {user?.isOAuthUser && (
+          <FormInfo
+            message={`Your account is linked to OAuth hence certain fields cannot be changed.`}
+          />
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-4">
@@ -141,13 +148,17 @@ const SettingsPage = () => {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem
+                    className={
+                      user?.isOAuthUser ? "opacity-50 cursor-not-allowed" : ""
+                    }
+                  >
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter a new email"
                         {...field}
-                        disabled={isPending}
+                        disabled={isPending || user?.isOAuthUser}
                       />
                     </FormControl>
                     <FormMessage />
@@ -160,7 +171,14 @@ const SettingsPage = () => {
                 control={form.control}
                 name="isTwoFactorEnabled"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row item-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem
+                    className={clsx(
+                      "flex flex-row item-center justify-between rounded-lg border p-3 shadow-sm",
+                      isPending || user?.isOAuthUser
+                        ? "cursor-not-allowed opacity-50"
+                        : ""
+                    )}
+                  >
                     <div className="space-y-0.5">
                       <FormLabel>Two-Factor Authentication</FormLabel>
                       <FormDescription>
@@ -173,7 +191,7 @@ const SettingsPage = () => {
                           By doing onCheckedChange={field.onChange} you tell the Switch to call RHF's(React Hook Form's) field.onChange(checked) whenever the user toggles the switch. RHF then updates its internal value for that field.
                       */}
                       <Switch
-                        disabled={isPending}
+                        disabled={isPending || user?.isOAuthUser}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
