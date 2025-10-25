@@ -10,8 +10,9 @@ import { UserInfo } from "../_components/user-info";
 const ServerPage = async () => {
   // get the session data first
   const user = await currentUser();
+  const alertLabel = "The data being displayed here is fetched using server actions";
 
-  return <UserInfo label="Server component💻" user={user} />;
+  return <UserInfo label="Server component💻" user={user}  alertLabel={alertLabel} />;
 };
 
 export default ServerPage;

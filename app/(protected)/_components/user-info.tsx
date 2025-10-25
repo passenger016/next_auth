@@ -4,19 +4,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ExtendedUser } from "@/next-auth";
+import { FormInfo } from "@/components/FormInfo";
 
 interface UserInfoProps {
   user?: ExtendedUser;
   label: string;
+  alertLabel?: string;
 }
 
-export const UserInfo = ({ user, label }: UserInfoProps) => {
+export const UserInfo = ({ user, label, alertLabel }: UserInfoProps) => {
   return (
     <Card className="w-[80%] md:w-[600px] shadow-md">
       <CardHeader>
         <p className="text-2xl font-semibold text-center">{label}</p>
       </CardHeader>
       <CardContent className="space-y-4">
+        {alertLabel && <FormInfo message={alertLabel} />}
         <div className="flex justify-between items-center rounded-lg border p-3 shadow-sm">
           <p className="text-sm font-medium">ID:</p>
           <p className="truncate max-w-[180px] text-xs font-mono p-1 bg-slate-100 rounded-md">

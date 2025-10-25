@@ -11,8 +11,11 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 const ClientPage = () => {
   // get the session data first
   const user = useCurrentUser();
-
-  return <UserInfo label="Client component📱" user={user} />;
+  const alertLabel =
+    "The data being displayed here is fetched using client hooks";
+  return (
+    <UserInfo label="Client component📱" user={user} alertLabel={alertLabel} />
+  );
 };
 
 export default ClientPage;
