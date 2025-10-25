@@ -37,7 +37,7 @@ export default auth((req) => {
             console.log('stopped at default logged in route')
             // if we are on the auth route and the user is logged in then we will redirect them towards the `DEFAULT_LOGIN_REDIRECT` instead of `/auth`
             // middleware is not going to interfare even if there is an error
-            return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+            return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
         }
          
     }
@@ -45,8 +45,8 @@ export default auth((req) => {
     // if the user is not logged in and is not on a public route then redirect to the login page
     if (!isLoggedIn && !isPublicRoute && !isAuthRoute){
         if(nextUrl.pathname !== "/auth/login"){
-        console.log('stopped at redirected to login route as the user was on a protected route')
-        return Response.redirect(new URL("/auth/login", nextUrl))
+        console.log('stopped and redirected to login route as the user was on a protected route')
+        return NextResponse.redirect(new URL("/auth/login", nextUrl))
         }
     }
 
