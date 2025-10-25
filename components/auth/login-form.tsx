@@ -163,7 +163,7 @@ export const LoginForm = () => {
           // await new Promise((r) => setTimeout(r, 100));
 
           // Navigate to protected area (replace so login page is not in history)
-          router.replace("/(protected)/settings"); // adjust to your target
+          router.replace("/settings"); // adjust to your target
           // now if the data being send back has a twoFactor attribute attached
           if (data?.twoFactor) {
             setShowTwoFactor(true);
