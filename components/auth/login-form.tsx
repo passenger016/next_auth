@@ -51,6 +51,9 @@ export const LoginForm = () => {
     email: string;
     password: string;
   } | null>(null);
+
+  // getting the update function from useSession to refresh the session after login
+  // router replacement to avoid history issues
   const { update } = useSession();
   const router = useRouter();
 
@@ -138,38 +141,45 @@ export const LoginForm = () => {
             }
             // set the error
             setError(data.error);
+            return; // if an error occurs then we will not trigger the window refresh
           }
           if (data?.success) {
             form.reset();
             setSuccess(data.success);
+            return; // -- now it's working, if verification email sent successfully then we will not trigger the window refresh
           }
           // Try to refresh next-auth client cache first (preferred)
-          if (update) {
-            try {
-              await update(); // re-fetches session endpoint and updates useSession()
-            } catch (e) {
-              // swallow, we'll fallback to router.refresh below
-            }
-          }
+          // if (update) {
+          // try {
+          //   await update(); // re-fetches session endpoint and updates useSession()
+          // } catch (e) {
+          //   // swallow, we'll fallback to router.refresh below
+          // }
+          // }
 
           // Ensure server components are re-run so SSR UI reflects new cookie
-          try {
-            router.refresh();
-          } catch (e) {
-            // ignore refresh failure
-          }
+          // try {
+          //   router.refresh();
+          // } catch (e) {
+          //   // ignore refresh failure
+          // }
 
-          // If the router and session are stale, fallback to full reload
-          setTimeout(() => {
-            window.location.reload();
-          }, 300); // fallback after short delay if session still not visible
+          // if (data?.isLoggedIn) {
+          //   // If the router and session are stale, fallback to full reload
+          //   // setTimeout(() => {
+          //   //   window.location.reload();
+          //   // }, 300); // fallback after short delay if session still not visible
+          //   console.log("Reloading window...");
+          //   window.location.reload();
+          // }
 
+          // temporary solution to the non showing of the protected routes after login using client side session
+          // triggering a full window reload to make sure all components are reloaded and the session is fetched again
+          console.log("Reloading window...");
+          window.location.reload();
           // Optional small delay (uncomment only if you encounter a race):
-          await new Promise((r) => setTimeout(r, 100));
-
-          // Navigate to protected area (replace so login page is not in history)
-          router.replace("/settings"); // adjust to your target
-          // now if the data being send back has a twoFactor attribute attached
+          // await new Promise((r) => setTimeout(r, 100));
+          
           if (data?.twoFactor) {
             setShowTwoFactor(true);
           }
