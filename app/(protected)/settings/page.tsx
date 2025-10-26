@@ -45,7 +45,7 @@ const SettingsPage = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
 
-  // get the current using using the front end hook
+  // get the current user using the front end hook
   const user = useCurrentUser();
 
   // defining our form
