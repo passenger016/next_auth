@@ -28,6 +28,11 @@ export const passwordResetSecurity = async (
   if (!dbUser) {
     return { error: "User not found" };
   }
+  // if the user is linked to an OAUTH provider then we will not allow them to update their password
+  if (user.isOAuthUser) {
+    (values.password = undefined), (values.confirmPassword = undefined);
+    return { error: "OAUTH users cannot change password" };
+  }
 
   // check for if both the password and confirm password fields are matching
   if (values.password !== values.confirmPassword) {
