@@ -31,6 +31,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   // we will also disable it on the client side
   if (user.isOAuthUser) {
     (values.email = undefined), (values.isTwoFactorEnabled = undefined);
+    return { error: "OAUTH users cannot change password" };
   }
 
   // disabled name checking because of the same form for all the fields
