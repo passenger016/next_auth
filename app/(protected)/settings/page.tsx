@@ -7,7 +7,7 @@ import { signOut, useSession } from "next-auth/react";
 import { CardContent, CardHeader, Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { settings } from "@/actions/settings";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 
 // for form handling and validation
 import * as z from "zod";
@@ -55,9 +55,46 @@ const SettingsPage = () => {
       // the default values will automatically populate the form fields with the current user data
       name: user?.name || undefined,
       email: user?.email || undefined,
-      isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
+      // ??(nullish coalescing operator) returns the right-hand value only if the left-hand value is null or undefined
+      // while ||(logical OR) returns the right-hand value if the left-hand value is any falsy value (false, 0, "", null, undefined, NaN)
+      isTwoFactorEnabled: user?.isTwoFactorEnabled ?? false,
     },
   });
+  // Reset form values whenever user changes
+  // React Hook Form's defaultValues are only set during the initial render and do not update automatically when the user data changes asynchronously.
+  // hence we use useEffect to reset the form values whenever the user data changes.
+  useEffect(() => {
+    form.reset({
+      name: user?.name || undefined,
+      email: user?.email || undefined,
+      // ??(nullish coalescing operator) returns the right-hand value only if the left-hand value is null or undefined
+      // while ||(logical OR) returns the right-hand value if the left-hand value is any falsy value (false, 0, "", null, undefined, NaN)
+      isTwoFactorEnabled: user?.isTwoFactorEnabled ?? false,
+    });
+  }, [user, form]);
+
+  // RHF gives a watch method to watch specific form fields
+  // we will keep an eye on both the password and confirm password fields, it will track changes realtime
+  // NOTE: using onChange() function with RHF caused unexpected behaviours hence we are using watch()
+  // so that we can disable the submit button if any of them is empty
+  const { watch } = form;
+  const nameInputValue = watch("name");
+  const emailInputValue = watch("email");
+  const isTwoFactorEnabledValue = watch("isTwoFactorEnabled");
+  // we will disable the button if there are no changes made to the form
+  // NOTE: contrary to password reset form, here we will disable the button if no changes are made
+  // since the default values are already populated with the current user data unlike the password reset form which had empty default values
+  const disableButton =
+    nameInputValue === user?.name &&
+    emailInputValue === user?.email &&
+    isTwoFactorEnabledValue === user?.isTwoFactorEnabled;
+
+  console.log(
+    `user values: ${user?.name}, ${user?.email}, ${user?.isTwoFactorEnabled}`
+  );
+  console.log(
+    `form values: ${nameInputValue}, ${emailInputValue}, ${isTwoFactorEnabledValue}`
+  );
 
   // older approach for form submission using server action -- commented out
   // we are using the useCurrentUser hook to directly get the data of the `user` other than having to do a session.data?.user everytime
@@ -204,8 +241,8 @@ const SettingsPage = () => {
             {/* display error or success message if any */}
             <FormError message={error} />
             <FormSuccess message={success} />
-            <Button type="submit" disabled={isPending}>
-              {isPending ? <Spinner /> : "Save"}
+            <Button type="submit" disabled={isPending || disableButton}>
+              {isPending ? <Spinner /> : "Update"}
             </Button>
           </form>
         </Form>
