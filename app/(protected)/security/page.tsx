@@ -57,11 +57,11 @@ const SecurityPage = () => {
   // we will keep an eye on both the password and confirm password fields, it will track changes realtime
   // NOTE: using onChange() function with RHF caused unexpected behaviours hence we are using watch()
   // so that we can disable the submit button if any of them is empty
-  const { watch } = PasswordResetForm;
+  const { watch, reset } = PasswordResetForm;
   const passwordInputValue = watch("password");
   const confirmPasswordInputValue = watch("confirmPassword");
 
-  // this variable will be true if either of the fields is empty  
+  // this variable will be true if either of the fields is empty
   const disableButton = !passwordInputValue || !confirmPasswordInputValue;
 
   // the values being passed here are of the type inferred from SettingsSchema
@@ -98,80 +98,90 @@ const SecurityPage = () => {
   };
 
   return (
-      <Card className="w-[80%] md:w-[600px] shadow-md">
-        <CardHeader>
-          <h2 className="text-2xl font-semibold text-center">🔑Security</h2>
-        </CardHeader>
-        <CardContent>
-          {/* Button with sign out functionality as a example of implementing signOut or related server actions logic on a client component */}
-          {/* <Button variant="outline" onClick={signOutUser}>
+    <Card className="w-[80%] md:w-[600px] shadow-md">
+      <CardHeader>
+        <h2 className="text-2xl font-semibold text-center">🔑Security</h2>
+      </CardHeader>
+      <CardContent>
+        {/* Button with sign out functionality as a example of implementing signOut or related server actions logic on a client component */}
+        {/* <Button variant="outline" onClick={signOutUser}>
               Sign Out
             </Button> */}
-          {/* Button will be diabled during the transition */}
-          {user?.isOAuthUser && (
-            <FormInfo
-              message={`Your account is linked to OAuth hence certain fields cannot be changed.`}
-            />
-          )}
-          <Form {...PasswordResetForm}>
-            <form
-              onSubmit={PasswordResetForm.handleSubmit(onSubmitPasswordReset)}
-              className="space-y-4"
-            >
-              <div className="space-y-4">
-                <FormField
-                  // the control of the form is passed here
-                  // this basically connects the form field with react hook form
-                  control={PasswordResetForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter new password"
-                          {...field}
-                          disabled={isPending}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  // the control of the form is passed here
-                  // this basically connects the form field with react hook form
-                  control={PasswordResetForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem
-                      className={
-                        user?.isOAuthUser ? "opacity-50 cursor-not-allowed" : ""
-                      }
-                    >
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Cofirm new password"
-                          {...field}
-                          disabled={isPending || user?.isOAuthUser}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {/* display error or success message if any */}
-              <FormError message={error} />
-              <FormSuccess message={success} />
+        {/* Button will be diabled during the transition */}
+        {user?.isOAuthUser && (
+          <FormInfo
+            message={`Your account is linked to OAuth hence certain fields cannot be changed.`}
+          />
+        )}
+        <Form {...PasswordResetForm}>
+          <form
+            onSubmit={PasswordResetForm.handleSubmit(onSubmitPasswordReset)}
+            className="space-y-4"
+          >
+            <div className="space-y-4">
+              <FormField
+                // the control of the form is passed here
+                // this basically connects the form field with react hook form
+                control={PasswordResetForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter new password"
+                        {...field}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                // the control of the form is passed here
+                // this basically connects the form field with react hook form
+                control={PasswordResetForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem
+                    className={
+                      user?.isOAuthUser ? "opacity-50 cursor-not-allowed" : ""
+                    }
+                  >
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Cofirm new password"
+                        {...field}
+                        disabled={isPending || user?.isOAuthUser}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {/* display error or success message if any */}
+            <FormError message={error} />
+            <FormSuccess message={success} />
+            <div className="flex gap-x-2">
               <Button type="submit" disabled={isPending || disableButton}>
                 {isPending ? <Spinner /> : "Save"}
               </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+              <Button
+                variant="secondary"
+                type="reset"
+                disabled={isPending || disableButton}
+                onClick={() => reset()}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 
