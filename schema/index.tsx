@@ -59,3 +59,62 @@ export const SettingsSchema = z.object({
   // but instead of taking an input old password and new password,
   // we will take new password and confirm new password fields for better UX
 });
+
+/* schema for the pass word reset form for logged in users */
+/* 
+  IMPORTANT: the password reset schema on the top is used for logged out users
+  this schema is used to validate the password reset form for logged in users 
+*/
+export const PasswordResetSecuritySchema = z
+  .object({
+    password: z.optional(
+      z.string().min(6, { message: "Minimum 6 characters required" })
+    ),
+    confirmPassword: z.optional(
+      z.string().min(6, { message: "Minimum 6 characters required" })
+    ),
+  })
+  // .refine((data) => { //--> commented out in favor of .superRefine
+  //   // if password is missing but confirm password is entered
+  //   if (!data.password && data.confirmPassword) {
+  //     // return false;
+  //   }
+  //   // if password has been entered but confirm password is missing
+  //   if (data.password && !data.confirmPassword) {
+  //     // return false;
+  //   }
+  //   // if the password and confirm password do not match then we will return false
+  //   if (data.password !== data.confirmPassword) {
+  //     // return false;
+  //   }
+  //   // else we will continue with the normal flow
+  //   return true;
+  // });
+.superRefine((data, ctx) => {
+  if (!data.password && data.confirmPassword) {
+    // Add error for password if confirmPassword is entered but password is missing
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please enter your password first",
+      path: ["password"], // specify the path to the password field
+    });
+  }
+
+  if (data.password && !data.confirmPassword) {
+    // Add error for confirmPassword if password is entered but confirmPassword is missing
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please confirm your password",
+      path: ["confirmPassword"], // specify the path to the confirmPassword field
+    });
+  }
+
+  if (data.password !== data.confirmPassword) {
+    // Add error for confirmPassword if passwords do not match
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
+  }
+});
