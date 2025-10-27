@@ -167,7 +167,7 @@ const SecurityPage = () => {
             <FormSuccess message={success} />
             <div className="flex gap-x-2">
               <Button type="submit" disabled={isPending || disableButton}>
-                {isPending ? <Spinner /> : "Save"}
+                {isPending ? <Spinner /> : "Update"}
               </Button>
               <Button
                 variant="secondary"
