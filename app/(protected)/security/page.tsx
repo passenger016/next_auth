@@ -53,6 +53,17 @@ const SecurityPage = () => {
     },
   });
 
+  // RHF gives a watch method to watch specific form fields
+  // we will keep an eye on both the password and confirm password fields, it will track changes realtime
+  // NOTE: using onChange() function with RHF caused unexpected behaviours hence we are using watch()
+  // so that we can disable the submit button if any of them is empty
+  const { watch } = PasswordResetForm;
+  const passwordInputValue = watch("password");
+  const confirmPasswordInputValue = watch("confirmPassword");
+
+  // this variable will be true if either of the fields is empty  
+  const disableButton = !passwordInputValue || !confirmPasswordInputValue;
+
   // the values being passed here are of the type inferred from SettingsSchema
   // the z.infer utility type is used to extract the TypeScript type from a Zod schema
   // and then set values parameter to that type
@@ -155,7 +166,7 @@ const SecurityPage = () => {
               {/* display error or success message if any */}
               <FormError message={error} />
               <FormSuccess message={success} />
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending || disableButton}>
                 {isPending ? <Spinner /> : "Save"}
               </Button>
             </form>
