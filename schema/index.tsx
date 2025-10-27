@@ -90,31 +90,39 @@ export const PasswordResetSecuritySchema = z
   //   // else we will continue with the normal flow
   //   return true;
   // });
-.superRefine((data, ctx) => {
-  if (!data.password && data.confirmPassword) {
-    // Add error for password if confirmPassword is entered but password is missing
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Please enter your password first",
-      path: ["password"], // specify the path to the password field
-    });
-  }
+  .superRefine((data, ctx) => {
+    if (!data.password && data.confirmPassword) {
+      // Add error for password if confirmPassword is entered but password is missing
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter your password first",
+        path: ["password"], // specify the path to the password field
+      });
+    }
 
-  if (data.password && !data.confirmPassword) {
-    // Add error for confirmPassword if password is entered but confirmPassword is missing
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Please confirm your password",
-      path: ["confirmPassword"], // specify the path to the confirmPassword field
-    });
-  }
+    if (data.password && !data.confirmPassword) {
+      // Add error for confirmPassword if password is entered but confirmPassword is missing
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please confirm your password",
+        path: ["confirmPassword"], // specify the path to the confirmPassword field
+      });
+    }
 
-  if (data.password !== data.confirmPassword) {
-    // Add error for confirmPassword if passwords do not match
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    });
-  }
+    if (data.password !== data.confirmPassword) {
+      // Add error for confirmPassword if passwords do not match
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+/* schema for logged in user password validation before allowing password reset */
+export const ValidatePasswordSchema = z.object({
+  password: z.optional(
+    z.string().min(1, {
+      message: "Password is required",
+    })
+  ),
 });
