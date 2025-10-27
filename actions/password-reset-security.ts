@@ -5,6 +5,7 @@ import { PasswordResetSecuritySchema } from "@/schema";
 import { currentUser } from "@/lib/auth";
 import { getUserById } from "@/data/user";
 import bcryptjs from "bcryptjs";
+import { getCache } from "@/lib/nodeCacheHelper";
 
 // server action to handle password reset
 // primarily being used under the /(protected)/security page
@@ -32,6 +33,13 @@ export const passwordResetSecurity = async (
   if (user.isOAuthUser) {
     (values.password = undefined), (values.confirmPassword = undefined);
     return { error: "OAUTH users cannot change password" };
+  }
+
+  // on the backend we will also check if the password is validated before allowing password reset
+  // because frontend form can be bypassed
+  const isPasswordValidated = getCache(`password-validated:${user.id}`);
+  if (!isPasswordValidated) {
+    return { error: "Unauthorized" };
   }
 
   // check for if both the password and confirm password fields are matching
