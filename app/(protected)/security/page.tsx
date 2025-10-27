@@ -125,13 +125,17 @@ const SecurityPage = () => {
                 control={PasswordResetForm.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem
+                    className={
+                      user?.isOAuthUser ? "opacity-50 cursor-not-allowed" : ""
+                    }
+                  >
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter new password"
                         {...field}
-                        disabled={isPending}
+                        disabled={isPending || user?.isOAuthUser}
                       />
                     </FormControl>
                     <FormMessage />
