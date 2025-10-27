@@ -116,6 +116,7 @@ export const RegisterForm = () => {
                       type={isPasswordVisible ? "text" : "password"}
                       disabled={isPending}
                       className="relative"
+                      autoComplete="off"
                     />
                     {/* top-1/2: moves the button to 50% from the top of the container.
                                         -translate-y-1/2: shifts it up by half its own height, perfectly centering it vertically. */}
