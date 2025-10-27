@@ -98,7 +98,6 @@ const SecurityPage = () => {
   };
 
   return (
-    <div>
       <Card className="w-[80%] md:w-[600px] shadow-md">
         <CardHeader>
           <h2 className="text-2xl font-semibold text-center">🔑Security</h2>
@@ -173,7 +172,6 @@ const SecurityPage = () => {
           </Form>
         </CardContent>
       </Card>
-    </div>
   );
 };
 
