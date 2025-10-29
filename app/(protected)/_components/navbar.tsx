@@ -51,7 +51,7 @@ export const Navbar = () => {
         )}
       >
         {/* outer container for both the mobile nav items and the logout button */}
-        <div className="flex flex-col mt-36 w-full justify-between">
+        <div className="flex flex-col mt-36 w-full justify-between max-h-full">
           {/* this part contains other tabs in the navbar */}
           <div className={clsx("flex flex-col w-full")}>
             <Button
@@ -63,7 +63,7 @@ export const Navbar = () => {
             </Button>
             <Button
               asChild
-              variant={pathName === "/security" ? "default" : "outline"}
+              variant={pathName === "/security" ? "default" : "link"}
             >
               <Link href="/security">Security</Link>
             </Button>
