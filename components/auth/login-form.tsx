@@ -173,16 +173,17 @@ export const LoginForm = () => {
           //   window.location.reload();
           // }
 
+          if (data?.twoFactor) {
+            setShowTwoFactor(true);
+            return;
+          }
+
           // temporary solution to the non showing of the protected routes after login using client side session
           // triggering a full window reload to make sure all components are reloaded and the session is fetched again
           console.log("Reloading window...");
           window.location.reload();
           // Optional small delay (uncomment only if you encounter a race):
           // await new Promise((r) => setTimeout(r, 100));
-          
-          if (data?.twoFactor) {
-            setShowTwoFactor(true);
-          }
         })
         .catch(() => setError("Something went wrong"));
     });
