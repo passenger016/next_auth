@@ -148,7 +148,7 @@ const SecurityPage = () => {
   return (
     <Card className="w-[80%] md:w-[600px] shadow-md">
       <CardHeader>
-        <h2 className="text-2xl font-semibold text-center">🔑Security</h2>
+        <h2 className="text-2xl font-semibold text-center">Security🔏</h2>
       </CardHeader>
       <CardContent>
         {/* Button with sign out functionality as a example of implementing signOut or related server actions logic on a client component */}
