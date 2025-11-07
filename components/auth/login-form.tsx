@@ -52,11 +52,6 @@ export const LoginForm = () => {
     password: string;
   } | null>(null);
 
-  // getting the update function from useSession to refresh the session after login
-  // router replacement to avoid history issues
-  const { update } = useSession();
-  const router = useRouter();
-
   const handleResend = () => {
     if (credentials) {
       login({
@@ -148,42 +143,11 @@ export const LoginForm = () => {
             setSuccess(data.success);
             return; // -- now it's working, if verification email sent successfully then we will not trigger the window refresh
           }
-          // Try to refresh next-auth client cache first (preferred)
-          // if (update) {
-          // try {
-          //   await update(); // re-fetches session endpoint and updates useSession()
-          // } catch (e) {
-          //   // swallow, we'll fallback to router.refresh below
-          // }
-          // }
-
-          // Ensure server components are re-run so SSR UI reflects new cookie
-          // try {
-          //   router.refresh();
-          // } catch (e) {
-          //   // ignore refresh failure
-          // }
-
-          // if (data?.isLoggedIn) {
-          //   // If the router and session are stale, fallback to full reload
-          //   // setTimeout(() => {
-          //   //   window.location.reload();
-          //   // }, 300); // fallback after short delay if session still not visible
-          //   console.log("Reloading window...");
-          //   window.location.reload();
-          // }
 
           if (data?.twoFactor) {
             setShowTwoFactor(true);
             return;
           }
-
-          // temporary solution to the non showing of the protected routes after login using client side session
-          // triggering a full window reload to make sure all components are reloaded and the session is fetched again
-          console.log("Reloading window...");
-          window.location.reload();
-          // Optional small delay (uncomment only if you encounter a race):
-          // await new Promise((r) => setTimeout(r, 100));
         })
         .catch(() => setError("Something went wrong"));
     });

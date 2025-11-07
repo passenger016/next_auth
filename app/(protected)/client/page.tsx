@@ -1,8 +1,7 @@
 "use client";
 
-import { currentUser } from "@/lib/auth";
 import { UserInfo } from "../_components/user-info";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useUser } from "@/app/context/userContext";
 
 /* In this page we will directly use client actions here to get the session data */
 /* useCurrentUser is used to get the session data using the client side hook useSession() */
@@ -10,7 +9,9 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 
 const ClientPage = () => {
   // get the session data first
-  const user = useCurrentUser();
+  // const user = useCurrentUser(); -- older method for fetching session data
+  const user = useUser(); // new method for fetching user data from context that is being passed from the '@/app/layout.tsx' file
+
   const alertLabel =
     "The data being displayed here is fetched using client hooks";
   return (

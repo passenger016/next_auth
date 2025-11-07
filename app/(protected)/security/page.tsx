@@ -20,14 +20,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { FormInfo } from "@/components/FormInfo";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import clsx from "clsx";
 import { Switch } from "@/components/ui/switch";
 import { FormSuccess } from "@/components/FormSuccess";
 import { FormError } from "@/components/FormError";
 import { passwordResetSecurity } from "@/actions/password-reset-security";
 import { Button } from "@/components/ui/button";
 import { passwordValidationSecurity } from "@/actions/password-validation-security";
+import { useUser } from "@/app/context/userContext";
 
 const SecurityPage = () => {
   // we are using useTransition to manage the pending state of the server action
@@ -41,7 +40,9 @@ const SecurityPage = () => {
   const [passwordValidated, setPasswordValidated] = useState(false);
 
   // get the current user using the front end hook
-  const user = useCurrentUser();
+  // const user = useCurrentUser(); -- older method for fetching session data
+
+  const user = useUser(); // new method for fetching user data from context that is being passed from the '@/app/layout.tsx' file
 
   // defining the form for password validation prior to showing password reset fields
   const ValidateUserPasswordForm = useForm<

@@ -2,7 +2,6 @@
 // we will be using client components here
 "use client";
 
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { signOut, useSession } from "next-auth/react";
 import { CardContent, CardHeader, Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +30,7 @@ import { FormSuccess } from "@/components/FormSuccess";
 import { Switch } from "@/components/ui/switch";
 import clsx from "clsx";
 import { FormInfo } from "@/components/FormInfo";
+import { useUser } from "@/app/context/userContext";
 
 /* 
   NOTE: async await functions can be used in a client component but they cannot be used directly in the component body
@@ -46,7 +46,9 @@ const SettingsPage = () => {
   const [success, setSuccess] = useState<string | undefined>();
 
   // get the current user using the front end hook
-  const user = useCurrentUser();
+  // const user = useCurrentUser(); // older method for fetching session data
+  
+  const user = useUser(); // new method for fetching user data from context that is being passed from the '@/app/layout.tsx' file
 
   // defining our form
   const form = useForm<z.infer<typeof SettingsSchema>>({
@@ -108,8 +110,6 @@ const SettingsPage = () => {
   // the above approach is better if there is additional logic required before logging out the user or else the current logic works perfectly.
   // };
 
-  const { update } = useSession();
-
   // the values being passed here are of the type inferred from SettingsSchema
   // the z.infer utility type is used to extract the TypeScript type from a Zod schema
   // and then set values parameter to that type
@@ -133,7 +133,6 @@ const SettingsPage = () => {
           }
           if (data.success) {
             setSuccess(data.success);
-            update(); // to update the session data after the settings have been updated
           }
         })
         // fallback for any unexpected error
