@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+import { currentUser } from "@/lib/auth";
+import { UserProvider } from "./context/userContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,13 +16,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+
+  // const session = await auth(); -- old method for fetching session data 
+  //  instead fetching user data from the auth() method we will use our custom currentUser() method
+  // this will fetch cached data 
+  // and then use a context provider instead of session provider to provide user data throughout the app
+  const user = await currentUser();
 
   return (
-    <SessionProvider session={session}>
+    // instead of using SessionProvider we are using our custom UserProvider to provide user data throughout the app
+    // by using context instead of direct session data passing
+    <UserProvider user={user}>
       <html lang="en">
         <body className={inter.className}>{children}</body>
       </html>
-    </SessionProvider>
+    </UserProvider>
   );
 }
