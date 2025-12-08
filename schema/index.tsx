@@ -1,11 +1,24 @@
 import * as z from "zod";
 
-export const NewPasswordSchema = z.object({
-  /* the .min() function is used to specify that a minimum of 1 character is required */
-  password: z.string().min(6, {
-    message: "Minimum 6 characters required",
-  }),
-});
+export const NewPasswordSchema = z
+  .object({
+    /* the .min() function is used to specify that a minimum of 1 character is required */
+    password: z.string().min(6, {
+      message: "Minimum 6 characters required",
+    }),
+    confirmPassword: z.string().min(6, {
+      message: "Minimum 6 characters required",
+    }),
+  })
+  .refine(
+    (data) => {
+      return data.password === data.confirmPassword;
+    },
+    {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    }
+  );
 
 export const PasswordResetSchema = z.object({
   email: z

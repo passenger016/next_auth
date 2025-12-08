@@ -55,6 +55,12 @@ export const passwordResetSecurity = async (
     return { error: "Both the fields are required!" };
   }
 
+  // check if the newly entered password is the same as the previous password
+  const isSamePassword = await bcryptjs.compare(values.password, dbUser.password!);
+  if (isSamePassword) {
+    return { error: "New password must not match the old password" };
+  }
+
   // if everything is fine then we will proceed to update the password
   // hashing the new password using bcrypt
   const hashedNewPassword = await bcryptjs.hash(values.password, 10);

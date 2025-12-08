@@ -37,7 +37,7 @@ export const newPassword = async (
   if (!existingUser) {
     return { error: "Email does not exist" };
   }
-  console.log(`Eixsting User's id : ${existingUser.id}`);
+  console.log(`Existing User's id : ${existingUser.id}`);
   // hashing the new password and updating it in the database
   const hashedPassword = await bcryptjs.hash(password, 10);
   console.log(`password:${password}`);
